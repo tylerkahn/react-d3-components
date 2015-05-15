@@ -10,8 +10,8 @@ let Tooltip = React.createClass({
 
 	getDefaultProps() {
 		return {
-			top: 150,
-			left: 100,
+			top: 0,
+			left: 0,
 			html: ""
 		};
 	},
@@ -21,7 +21,7 @@ let Tooltip = React.createClass({
 
 		let style = {
 			display: hidden ? "none" : "block",
-			position: "fixed",
+			position: "absolute",
 			top: top,
 			left: left
 		};

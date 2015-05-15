@@ -16,14 +16,17 @@ let Wedge = React.createClass({
 	},
 
 	render() {
-		let {fill, d, data, onMouseEnter, onMouseLeave} = this.props;
+		let {
+			fill, 
+			d, 
+			globalData, 
+			gsize,
+			data} = this.props;
 
 		return (
 				<path
 					fill={fill}
 					d={d}
-					onMouseMove={ evt => { onMouseEnter(evt, data); } }
-					onMouseLeave={  evt => { onMouseLeave(evt); } }
 				>
 				</path>
 		);
@@ -66,7 +69,15 @@ let DataSet = React.createClass({
 			 x,
 			 y,
 			 onMouseEnter,
-			 onMouseLeave} = this.props;
+			 onMouseLeave,
+			 width,
+			 height} = this.props;
+
+		let gsize = {
+			width, height
+		};
+
+		let globalData = pie;
 
 		let wedges = pie.map((e, index) => {
 			function midAngle(d){
@@ -112,25 +123,29 @@ let DataSet = React.createClass({
 			return (
 					<g key={`${x(e.data)}.${y(e.data)}.${index}`} className="arc">
 					<Wedge
+						globalData = {pie}
 						data={e.data}
+						gsize={gsize}
 						fill={ e.data.color || colorScale(x(e.data))}
 						d={d}
-						onMouseEnter={onMouseEnter}
-						onMouseLeave={onMouseLeave}
 					>
 					</Wedge>
 
 					{_polyline}
 					{_text}
-
+					
 					</g>
 			);
 		});
-
+	
 		return (
-			<g>
+			<g id="mouse" 
+				onMouseEnter={ evt => { onMouseEnter(evt, globalData, gsize); } } 
+				onMouseLeave={ evt => { onMouseLeave(evt); } } 
+			>	
 				{wedges}
 			</g>
+			
 		);
 	}
 });
@@ -218,8 +233,10 @@ let PieChart = React.createClass({
 		let pieData = pie(values(data));
 
 		let translation = `translate(${innerWidth/2}, ${innerHeight/2})`;
+
+		let style = { position: "relative" };
 		return (
-			<div>
+			<div style={style}>
 				<Chart height={height} width={width} margin={margin}>
 					<g transform={translation}>
 						<DataSet
