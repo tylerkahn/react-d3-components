@@ -28,8 +28,6 @@ let TooltipMixin = {
 
 	onMouseEnter(e, data, gsize ) {
 
-		console.log( "Enter" );
-
 		if (!this.props.tooltipHtml) {
 			return;
 		}
@@ -79,8 +77,6 @@ let TooltipMixin = {
 	},
 
 	onMouseLeave(e) {
-
-		console.log( "out" );
 
 		if (!this.props.tooltipHtml) {
 			return;
