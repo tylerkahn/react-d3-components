@@ -9,14 +9,15 @@ let TooltipMixin = {
 	getInitialState() {
 		return {
 			tooltip: {
-				hidden: true
+				hidden: true,
+				fixed: true
 			}
 		};
 	},
 
 	getDefaultProps() {
 		return {
-			tooltipOffset: {top: -20, left: 15},
+			tooltipOffset: {top: 0, left: 20},
 			tooltipHtml: null
 		};
 	},
@@ -25,48 +26,66 @@ let TooltipMixin = {
 		this._svg_node = this.getDOMNode().getElementsByTagName("svg")[0];
 	},
 
-	onMouseEnter(e, data) {
+	onMouseEnter(e, data, gsize ) {
+
 		if (!this.props.tooltipHtml) {
 			return;
 		}
-
-		e.preventDefault();
 
 		let {margin, tooltipHtml} = this.props;
 
 		let svg = this._svg_node;
 		let position;
-		if (svg.createSVGPoint) {
-			var point = svg.createSVGPoint();
-			point.x = e.clientX, point.y = e.clientY;
-			point = point.matrixTransform(svg.getScreenCTM().inverse());
-			position = [point.x - margin.left, point.y - margin.top];
-		} else {
-			let rect = svg.getBoundingClientRect();
-			position = [e.clientX - rect.left - svg.clientLeft - margin.left,
-						e.clientY - rect.top - svg.clientTop - margin.top];
+
+		if (  this.state.tooltip.fixed ){
+			position = [0, 0];
 		}
+		else {
+			if (svg.createSVGPoint) {
+				var point = svg.createSVGPoint();
+				point.x = e.clientX, point.y = e.clientY;
+				point = point.matrixTransform(svg.getScreenCTM().inverse());
+				position = [point.x - margin.left, point.y - margin.top];
+			} else {
+				let rect = svg.getBoundingClientRect();
+				position = [e.clientX - rect.left - svg.clientLeft - margin.left,
+							e.clientY - rect.top - svg.clientTop - margin.top];
+			}
+		}
+ 		
+ 		let top = 0;
+ 		let left = 0;
+
+ 		if ( this.state.tooltip.fixed ){
+			top = (gsize.height / 2) + this.props.tooltipOffset.top,
+ 			left = ( gsize.width) - this.props.tooltipOffset.left;
+ 		}
+ 		else {
+ 			top = e.clientY + this.props.tooltipOffset.top,
+ 			left = e.clientX + this.props.tooltipOffset.left
+ 		}
 
 		this.setState({
 			tooltip: {
-				top: e.clientY + this.props.tooltipOffset.top,
-				left: e.clientX + this.props.tooltipOffset.left,
+				top: top + 10,
+				left: left,
 				hidden: false,
-				html: this._tooltipHtml(data, position)
+				fixed: true,
+				html: tooltipHtml(data, position)
 			}
 		});
 	},
 
 	onMouseLeave(e) {
+
 		if (!this.props.tooltipHtml) {
 			return;
 		}
 
-		e.preventDefault();
-
 		this.setState({
 			tooltip: {
-				hidden: true
+				hidden: true,
+				fixed: true
 			}
 		});
 	}

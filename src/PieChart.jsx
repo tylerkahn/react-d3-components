@@ -16,15 +16,19 @@ let Wedge = React.createClass({
 	},
 
 	render() {
-		let {fill, d, data, onMouseEnter, onMouseLeave} = this.props;
+		let {
+			fill, 
+			d, 
+			globalData, 
+			gsize,
+			data} = this.props;
 
 		return (
 				<path
-			fill={fill}
-			d={d}
-			onMouseMove={ evt => { onMouseEnter(evt, data); } }
-			onMouseLeave={  evt => { onMouseLeave(evt); } }
-				/>
+					fill={fill}
+					d={d}
+				>
+				</path>
 		);
 	}
 });
@@ -65,7 +69,15 @@ let DataSet = React.createClass({
 			 x,
 			 y,
 			 onMouseEnter,
-			 onMouseLeave} = this.props;
+			 onMouseLeave,
+			 width,
+			 height} = this.props;
+
+		let gsize = {
+			width, height
+		};
+
+		let globalData = pie;
 
 		let wedges = pie.map((e, index) => {
 			function midAngle(d){
@@ -82,37 +94,58 @@ let DataSet = React.createClass({
 			let linePos = outerArc.centroid(e);
 			linePos[0] = radius * 0.95 * (midAngle(e) < Math.PI ? 1 : -1);
 
+			let _polyline = {};
+
+			if ( false ) {
+				_polyline = (
+					<polyline
+						opacity={opacity}
+						strokeWidth={strokeWidth}
+						stroke={stroke}
+						fill={fill}
+						points={[arc.centroid(e), outerArc.centroid(e), linePos]}
+					>
+					</polyline>
+				)
+			} 
+
+			let _text = {};
+			if ( false ) {
+				_text = (
+					<text
+						x={labelPos[0]}
+						y={labelPos[1]}
+						textAnchor={textAnchor}>{x(e.data)}
+					</text>
+				)
+			}
+
 			return (
 					<g key={`${x(e.data)}.${y(e.data)}.${index}`} className="arc">
 					<Wedge
-				data={e.data}
-				fill={colorScale(x(e.data))}
-				d={d}
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
-					/>
+						globalData = {pie}
+						data={e.data}
+						gsize={gsize}
+						fill={ e.data.color || colorScale(x(e.data))}
+						d={d}
+					>
+					</Wedge>
 
-					<polyline
-				opacity={opacity}
-				strokeWidth={strokeWidth}
-				stroke={stroke}
-				fill={fill}
-				points={[arc.centroid(e), outerArc.centroid(e), linePos]}
-					/>
-
-					<text
-				dy=".35em"
-				x={labelPos[0]}
-				y={labelPos[1]}
-				textAnchor={textAnchor}>{x(e.data)}</text>
+					{_polyline}
+					{_text}
+					
 					</g>
 			);
 		});
-
+	
 		return (
-				<g>
+			<g id="mouse" 
+				onMouseEnter={ evt => { onMouseEnter(evt, globalData, gsize); } } 
+				onMouseLeave={ evt => { onMouseLeave(evt); } } 
+			>	
 				{wedges}
 			</g>
+			
 		);
 	}
 });
@@ -200,32 +233,44 @@ let PieChart = React.createClass({
 		let pieData = pie(values(data));
 
 		let translation = `translate(${innerWidth/2}, ${innerHeight/2})`;
+
+		let style = { position: "relative" };
 		return (
-			<div>
+			<div style={style}>
 				<Chart height={height} width={width} margin={margin}>
-				<g transform={translation}>
-				<DataSet
-			width={innerWidth}
-			height={innerHeight}
-			colorScale={colorScale}
-			pie={pieData}
-			arc={arc}
-			outerArc={outerArc}
-			radius={radius}
-			x={x}
-			y={y}
-			onMouseEnter={this.onMouseEnter}
-			onMouseLeave={this.onMouseLeave}
-				/>
-				</g>
+					<g transform={translation}>
+						<DataSet
+							width={innerWidth}
+							height={innerHeight}
+							colorScale={colorScale}
+							pie={pieData}
+							arc={arc}
+							outerArc={outerArc}
+							radius={radius}
+							x={x}
+							y={y}
+							onMouseEnter={this.onMouseEnter}
+							onMouseLeave={this.onMouseLeave}
+							>
+						</DataSet>
+						<text
+							x={0}
+							y={innerHeight/2}
+							textAnchor="middle"
+						>
+							{data.label}
+						</text>
+					</g>
 				</Chart>
 
 				<Tooltip
-			hidden={this.state.tooltip.hidden}
-			top={this.state.tooltip.top}
-			left={this.state.tooltip.left}
-			html={this.state.tooltip.html}/>
-				</div>
+					hidden={this.state.tooltip.hidden}
+					top={this.state.tooltip.top}
+					left={this.state.tooltip.left}
+					html={this.state.tooltip.html}
+				>
+				</Tooltip>
+			</div>
 		);
 	}
 });

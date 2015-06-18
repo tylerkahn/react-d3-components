@@ -1,0 +1,93 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title>React D3 Components - PieChart Examples</title>
+  <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+  <link rel="stylesheet" type="text/css" href="pie-chart.css">
+  <script src="https://fb.me/react-with-addons-0.13.1.js"></script>
+  <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>
+  <script src="../dist/react-d3-components.js"></script>
+</head>
+<body>
+	<div id="brush" class="brush"></div>
+  <div id="piechart-threat"></div>
+  <div id="piechart-types"></div>
+
+  <script type="text/jsx;harmony=true">
+		var PieChart = ReactD3.PieChart;
+
+		var tooltipChart = function( list ) {
+
+			var items = [];
+
+			list.forEach(function( item ) {
+
+				var style = { background: item.data.color };
+
+				items.push(
+					(
+						<div className="pure-g">
+					   	<div 
+					    	className="pure-u-1-5 bullet"
+					    	style={style}
+					    >
+					    </div>
+					    <div className="pure-u-4-5">
+					    	<div>{item.data.x.toString().toUpperCase()}</div>
+					    	<div>{item.data.y.toString()}</div>
+					    </div>
+						</div>
+						)
+					)
+				});
+
+			return items;
+		};
+
+		var data = {
+			threats : {
+				label: 'Threat Level',
+				values: [
+					{ x: 'Level 1', y: 6, color:'#f8e71c' }, 
+					{ x: 'Level 2', y: 5, color:'#f5a623' }, 
+					{ x: 'Level 3', y: 3, color: '#f44336' }
+				]
+			},
+			types : {
+				label: 'Types of Tampering',
+				values: [
+					{ x: 'Scripts', y: 10, color: '#99a3b7' }, 
+					{ x: 'Forms', y: 2, color: '#d8deea' }, 
+					{ x: 'Data', y: 3, color: '#b6c0d2' }
+				]
+			}
+		};
+
+		React.render(<PieChart
+			data={data.threats}
+			width={400}
+			height={300} 
+			margin={{top: 10, bottom: 10, left: 10, right: 10}}
+			tooltipHtml={tooltipChart}
+			sort={null}
+			>
+			</PieChart>,
+			document.getElementById('piechart-threat')
+		);
+
+		React.render(<PieChart
+			data={data.types}
+			width={400}
+			height={300} 
+			margin={{top: 10, bottom: 10, left: 10, right: 10}}
+			tooltipHtml={tooltipChart}
+			sort={null}
+			>
+			</PieChart>,
+			document.getElementById('piechart-types')
+		);
+
+  </script>
+</body>
+</html>
